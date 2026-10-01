@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Python & Django Knowledge Assistant (RAG)</title>
+    <meta name="description" content="Production-ready documentation-grounded RAG Knowledge Assistant for Python and Django.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h2>PyDjango RAG</h2>
+                        <span class="badge">Docs AI v1.0</span>
+                    </div>
+                </div>
+                <button class="icon-btn close-sidebar-btn" id="closeSidebarBtn" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <button class="new-chat-btn" id="newChatBtn">
+                <i class="fa-solid fa-plus"></i>
+                <span>New Conversation</span>
+            </button>
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchConvsInput" placeholder="Search conversations...">
+            </div>
+
+            <div class="conversations-section">
+                <div class="section-label">
+                    <span>Recent History</span>
+                    <span id="convCountBadge" class="count-pill">0</span>
+                </div>
+                <div class="conversations-list" id="conversationsList">
+                    <!-- Dynamic conversation items rendered here -->
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="system-status" id="systemStatusCard">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">RAG Index: <strong id="indexStatusText">Loading...</strong></span>
+                </div>
+                <div class="footer-actions">
+                    <button class="footer-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <button class="footer-btn" id="exportChatBtn" title="Export Current Chat">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+                    <button class="footer-btn" id="aboutBtn" title="About RAG System">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar Mobile Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="icon-btn mobile-toggle-btn" id="mobileToggleBtn" title="Open Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="chat-title-container">
+                        <h1 id="currentChatTitle">Python & Django Knowledge Assistant</h1>
+                        <span class="rag-pill"><i class="fa-solid fa-shield-halved"></i> Grounded RAG</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-outline" id="clearChatBtn" title="Clear Current Chat">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span class="hide-mobile">Clear Chat</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat Scroll Container -->
+            <div class="chat-viewport" id="chatViewport">
+                <!-- Welcome Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <div class="hero-icon">
+                        <i class="fa-brands fa-python"></i>
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h2>How can I help with Python & Django today?</h2>
+                    <p class="hero-subtitle">
+                        Ask questions grounded directly in the official Python 3.12 and Django 5.0 documentation.
+                    </p>
+
+                    <div class="suggested-grid">
+                        <div class="prompt-card" data-prompt="Explain Python decorators with a code example.">
+                            <div class="prompt-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                            <div class="prompt-content">
+                                <h4>Python Decorators</h4>
+                                <p>"Explain Python decorators with a code example."</p>
+                            </div>
+                        </div>
+                        <div class="prompt-card" data-prompt="What is a Django model and how do migrations work?">
+                            <div class="prompt-icon"><i class="fa-solid fa-database"></i></div>
+                            <div class="prompt-content">
+                                <h4>Django Models</h4>
+                                <p>"What is a Django model and how do migrations work?"</p>
+                            </div>
+                        </div>
+                        <div class="prompt-card" data-prompt="How does Django URL routing work with path converters?">
+                            <div class="prompt-icon"><i class="fa-solid fa-route"></i></div>
+                            <div class="prompt-content">
+                                <h4>URL Routing</h4>
+                                <p>"How does Django URL routing work with path converters?"</p>
+                            </div>
+                        </div>
+                        <div class="prompt-card" data-prompt="Explain Python list comprehensions and dictionary comprehensions.">
+                            <div class="prompt-icon"><i class="fa-solid fa-code"></i></div>
+                            <div class="prompt-content">
+                                <h4>List Comprehensions</h4>
+                                <p>"Explain Python list comprehensions and dictionary comprehensions."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Messages List -->
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Dynamic message bubbles injected here -->
+                </div>
+
+                <!-- Typing / Loading Spinner -->
+                <div class="typing-indicator-container hidden" id="typingIndicator">
+                    <div class="assistant-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="typing-bubble">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <span class="typing-text">Searching FAISS index & generating grounded answer...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scroll Bottom Button -->
+            <button class="scroll-bottom-btn hidden" id="scrollBottomBtn" title="Scroll to latest">
+                <i class="fa-solid fa-arrow-down"></i>
+            </button>
+
+            <!-- Bottom Input Bar -->
+            <div class="input-container">
+                <form id="chatForm" class="chat-form">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="questionInput" 
+                            placeholder="Ask a question about Python or Django (e.g. 'How do Django views work?')..."
+                            rows="1"
+                            required
+                        ></textarea>
+                        <button type="submit" id="sendBtn" class="send-btn" title="Send Question (Enter)">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-footer-info">
+                        <span><i class="fa-solid fa-circle-check"></i> Answers strictly grounded in official docs. Press <code>Enter</code> to send, <code>Shift + Enter</code> for new line.</span>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- About / Info Modal -->
+    <div class="modal-backdrop hidden" id="aboutModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-brain"></i> RAG Architecture & System Overview</h3>
+                <button class="icon-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>This application is a complete production-style college project demonstrating <strong>Retrieval-Augmented Generation (RAG)</strong>.</p>
+                <ul class="modal-tech-list">
+                    <li><strong>Knowledge Base:</strong> Official Python 3.12 and Django 5.0 Documentation.</li>
+                    <li><strong>Vector Store:</strong> FAISS (Facebook AI Similarity Search) FlatIP Index with L2 normalized cosine similarity.</li>
+                    <li><strong>Embeddings:</strong> SentenceTransformers (<code>all-MiniLM-L6-v2</code>).</li>
+                    <li><strong>LLM Provider:</strong> Configurable Groq API (<code>llama-3.3-70b-versatile</code>) with offline RAG fallback.</li>
+                    <li><strong>Backend:</strong> Django REST Framework & SQLite/PostgreSQL.</li>
+                    <li><strong>Frontend:</strong> HTML5, CSS3, Vanilla JS (No heavy SPA frameworks or Streamlit).</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="confirmModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,678 @@
+[
+  {
+    "chunk_id": "django_5efd6c40_0",
+    "content": "# Creating Applications in Django\n\nA Django project is a collection of configurations and apps for a given website. An app is a web application that does something — e.g., a blog system, a database of public records, or a simple poll app.\n\n## Creating a Django App\nTo create a new app within a Django project, use the `startapp` management command:\n\n```bash\npython manage.py startapp assistant\n```",
+    "metadata": {
+      "chunk_id": "django_5efd6c40_0",
+      "title": "Django Documentation — Creating Apps and Project Architecture",
+      "section": "Architecture & Structure",
+      "source_url": "https://docs.djangoproject.com/en/5.0/intro/tutorial01/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\app_structure.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_5800f751_1",
+    "content": "```bash\npython manage.py startapp assistant\n```\n\n## Standard App Directory Layout\n```\nassistant/\n│── admin.py        # Django Admin registration\n│── apps.py         # App configuration metadata\n│── models.py       # Database models\n│── serializers.py  # DRF serializers (for API representation)\n│── tests.py        # Unit and integration test suites\n│── urls.py         # App-specific URL routes\n└── views.py        # Business logic & request handlers\n```",
+    "metadata": {
+      "chunk_id": "django_5800f751_1",
+      "title": "Django Documentation — Creating Apps and Project Architecture",
+      "section": "Architecture & Structure",
+      "source_url": "https://docs.djangoproject.com/en/5.0/intro/tutorial01/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\app_structure.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_6d84ad23_2",
+    "content": "## Registering Apps in `settings.py`\nTo include the app in your Django project, add its configuration class to the `INSTALLED_APPS` setting in `config/settings.py`.\n\n```python\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n\n    # Third party packages\n    'rest_framework',\n    'corsheaders',\n\n    # Local apps\n    'assistant.apps.AssistantConfig',\n]\n```",
+    "metadata": {
+      "chunk_id": "django_6d84ad23_2",
+      "title": "Django Documentation — Creating Apps and Project Architecture",
+      "section": "Architecture & Structure",
+      "source_url": "https://docs.djangoproject.com/en/5.0/intro/tutorial01/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\app_structure.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_52e71dbb_0",
+    "content": "# Django Forms and Input Validation\n\nDjango provides a comprehensive form framework that handles rendering form fields, validating incoming user data, and converting submitted values into native Python data types.\n\n## Standard Form Class\n```python\nfrom django import forms\n\nclass QuestionForm(forms.Form):\n    question = forms.CharField(\n        max_length=500,\n        widget=forms.TextInput(attrs={'placeholder': 'Ask a Python or Django question...'})\n    )\n    conversation_id = forms.UUIDField(required=False)",
+    "metadata": {
+      "chunk_id": "django_52e71dbb_0",
+      "title": "Django Documentation — Forms and Input Validation",
+      "section": "Forms Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/forms/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\forms.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_23f4eb4a_1",
+    "content": "def clean_question(self):\n        data = self.cleaned_data['question'].strip()\n        if len(data) < 3:\n            raise forms.ValidationError(\"Question must be at least 3 characters long.\")\n        return data\n```\n\n## ModelForm Class\nIf your form directly creates or updates a Django model instance, use `ModelForm`.\n\n```python\nfrom django import forms\nfrom .models import Feedback\n\nclass FeedbackForm(forms.ModelForm):\n    class Meta:\n        model = Feedback\n        fields = ['rating', 'comment']\n        widgets = {\n            'comment': forms.Textarea(attrs={'rows': 3}),\n        }\n```",
+    "metadata": {
+      "chunk_id": "django_23f4eb4a_1",
+      "title": "Django Documentation — Forms and Input Validation",
+      "section": "Forms Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/forms/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\forms.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_950e5c00_2",
+    "content": "## Form Processing in Views\n```python\ndef submit_question(request):\n    if request.method == 'POST':\n        form = QuestionForm(request.POST)\n        if form.is_validate():\n            # Process cleaned data\n            q = form.cleaned_data['question']\n            return redirect('success')\n    else:\n        form = QuestionForm()\n\n    return render(request, 'ask.html', {'form': form})\n```",
+    "metadata": {
+      "chunk_id": "django_950e5c00_2",
+      "title": "Django Documentation — Forms and Input Validation",
+      "section": "Forms Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/forms/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\forms.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_1c9160dd_0",
+    "content": "# Django Models\n\nA Django model is the single, definitive source of information about your data. It contains the essential fields and behaviors of the data you're storing. Generally, each model maps to a single database table.\n\n## Defining a Django Model\nEach model is a Python class that subclasses `django.db.models.Model`. Each attribute of the model represents a database column/field.\n\n```python\nfrom django.db import models",
+    "metadata": {
+      "chunk_id": "django_1c9160dd_0",
+      "title": "Django Documentation — Models and Database Schema",
+      "section": "Model Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/models/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\models.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_e2052974_1",
+    "content": "```python\nfrom django.db import models\n\nclass Article(models.Model):\n    title = models.CharField(max_length=200)\n    slug = models.SlugField(unique=True)\n    content = models.TextField()\n    published_date = models.DateTimeField(auto_now_add=True)\n    is_active = models.BooleanField(default=True)\n\n    def __str__(self):\n        return self.title\n```",
+    "metadata": {
+      "chunk_id": "django_e2052974_1",
+      "title": "Django Documentation — Models and Database Schema",
+      "section": "Model Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/models/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\models.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_6d671281_2",
+    "content": "def __str__(self):\n        return self.title\n```\n\n## Field Types\nDjango comes with dozens of built-in field types, including:\n- `CharField`: Small to medium-sized strings. Requires `max_length`.\n- `TextField`: Large text areas.\n- `IntegerField`, `FloatField`, `DecimalField`: Numerical data.\n- `DateTimeField`, `DateField`: Date and time handling.\n- `BooleanField`: True/False flags.\n- `EmailField`, `URLField`: Validated format fields.",
+    "metadata": {
+      "chunk_id": "django_6d671281_2",
+      "title": "Django Documentation — Models and Database Schema",
+      "section": "Model Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/models/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\models.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_7e13583e_3",
+    "content": "## Model Relationships\n1. **ForeignKey (Many-to-One)**: Requires `on_delete` parameter (e.g., `models.CASCADE`, `models.SET_NULL`).\n2. **ManyToManyField (Many-to-Many)**: Used for symmetrical or multi-association datasets.\n3. **OneToOneField (One-to-One)**: Conceptual inheritance or user profiles.\n\n```python\nclass Category(models.Model):\n    name = models.CharField(max_length=100)\n\nclass Post(models.Model):\n    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name=\"posts\")\n    title = models.CharField(max_length=200)\n    tags = models.ManyToManyField('Tag')\n```",
+    "metadata": {
+      "chunk_id": "django_7e13583e_3",
+      "title": "Django Documentation — Models and Database Schema",
+      "section": "Model Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/models/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\models.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "django_ec6472f8_4",
+    "content": "## Django Migrations\nMigrations are Django's way of propagating changes you make to your models into your database schema.\n- `python manage.py makemigrations`: Creates new migrations based on detected model changes.\n- `python manage.py migrate`: Applies and unapplies migrations to update database tables.",
+    "metadata": {
+      "chunk_id": "django_ec6472f8_4",
+      "title": "Django Documentation — Models and Database Schema",
+      "section": "Model Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/models/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\models.md",
+      "chunk_index": 4
+    }
+  },
+  {
+    "chunk_id": "django_cac4d658_0",
+    "content": "# Django ORM and QuerySets\n\nThe Django Object-Relational Mapper (ORM) allows developers to interact with database models using Python code rather than writing raw SQL queries.\n\n## Creating and Saving Objects\n```python\nfrom assistant.models import Conversation, Message\n\n# Option 1: Instantiate and save\nconv = Conversation(title=\"Python Basics\")\nconv.save()\n\n# Option 2: Use Manager create() method directly\nconv = Conversation.objects.create(title=\"Django Views\")\n```",
+    "metadata": {
+      "chunk_id": "django_cac4d658_0",
+      "title": "Django Documentation — Django ORM and QuerySets",
+      "section": "Database Queries",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/queries/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\orm.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_4279a588_1",
+    "content": "# Option 2: Use Manager create() method directly\nconv = Conversation.objects.create(title=\"Django Views\")\n```\n\n## Retrieving Objects (QuerySets)\nQuerySets represent a collection of objects from your database. They can have zero, one, or many filters.\n\n- `all()`: Retrieves all records.\n- `filter(**kwargs)`: Returns a new QuerySet matching given lookup parameters.\n- `exclude(**kwargs)`: Returns a new QuerySet excluding records matching parameters.\n- `get(**kwargs)`: Returns a single object matching parameters. Raises `DoesNotExist` or `MultipleObjectsReturned`.",
+    "metadata": {
+      "chunk_id": "django_4279a588_1",
+      "title": "Django Documentation — Django ORM and QuerySets",
+      "section": "Database Queries",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/queries/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\orm.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_08482a23_2",
+    "content": "```python\n# Filtering examples\nactive_convs = Conversation.objects.filter(title__icontains=\"Python\")\nrecent_messages = Message.objects.filter(conversation=conv).order_by('-created_at')[:10]\n```\n\n## Field Lookups\nField lookups use double underscores `__`:\n- `exact`, `iexact`: Exact matching (case-sensitive/insensitive).\n- `contains`, `icontains`: Substring test.\n- `gt`, `gte`, `lt`, `lte`: Greater than / less than comparisons.\n- `in`: Membership test in a list.\n\n```python\n# Messages created in the last 7 days\nfrom django.utils import timezone\nfrom datetime import timedelta",
+    "metadata": {
+      "chunk_id": "django_08482a23_2",
+      "title": "Django Documentation — Django ORM and QuerySets",
+      "section": "Database Queries",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/queries/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\orm.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_9417363c_3",
+    "content": "```python\n# Messages created in the last 7 days\nfrom django.utils import timezone\nfrom datetime import timedelta\n\nweek_ago = timezone.now() - timedelta(days=7)\nrecent = Message.objects.filter(created_at__gte=week_ago)\n```\n\n## Aggregation and Annotation\nDjango ORM supports SQL aggregations (`COUNT`, `AVG`, `SUM`, `MAX`, `MIN`).\n\n```python\nfrom django.db.models import Count\n\nconversations_with_counts = Conversation.objects.annotate(msg_count=Count('messages'))\n```",
+    "metadata": {
+      "chunk_id": "django_9417363c_3",
+      "title": "Django Documentation — Django ORM and QuerySets",
+      "section": "Database Queries",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/db/queries/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\orm.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "django_2865015e_0",
+    "content": "# Django Templates\n\nDjango's template engine provides a powerful syntax for rendering dynamic HTML documents while maintaining a clean separation between business logic and visual layout.\n\n## Template Syntax Basics\n1. **Variables**: Rendered with double curly braces `{{ variable_name }}`.\n2. **Tags**: Control structures, loops, and logic rendered with curly braces and percent signs `{% tag_name %}`.\n3. **Filters**: Transform variable values using pipe symbol `{{ variable|filter_name }}`.",
+    "metadata": {
+      "chunk_id": "django_2865015e_0",
+      "title": "Django Documentation — Templates and DTL System",
+      "section": "Template Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/templates/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\templates.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_1489aad8_1",
+    "content": "```html\n<!DOCTYPE html>\n<html>\n<head>\n    <title>{{ page_title|title }}</title>\n</head>\n<body>\n    <h1>Welcome, {{ user.username|default:\"Guest\" }}!</h1>\n\n    {% if articles %}\n        <ul>\n        {% for article in articles %}\n            <li>\n                <a href=\"{% url 'article_detail' article.id %}\">{{ article.title }}</a>\n                <span>({{ article.published_date|date:\"Y-m-d\" }})</span>\n            </li>\n        {% endfor %}\n        </ul>\n    {% else %}\n        <p>No articles available at this time.</p>\n    {% endif %}\n</body>\n</html>\n```",
+    "metadata": {
+      "chunk_id": "django_1489aad8_1",
+      "title": "Django Documentation — Templates and DTL System",
+      "section": "Template Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/templates/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\templates.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_e1c84382_2",
+    "content": "## Template Inheritance\nTemplate inheritance allows you to build a base \"skeleton\" template that contains all common elements of your site and defines blocks that child templates can override.\n\n### Base Template (`base.html`)\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <title>{% block title %}My Site{% endblock %}</title>\n</head>\n<body>\n    <header>Nav Bar</header>\n    <main>\n        {% block content %}{% endblock %}\n    </main>\n</body>\n</html>\n```\n\n### Child Template (`index.html`)\n```html\n{% extends \"base.html\" %}\n\n{% block title %}Home - AI Assistant{% endblock %}",
+    "metadata": {
+      "chunk_id": "django_e1c84382_2",
+      "title": "Django Documentation — Templates and DTL System",
+      "section": "Template Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/templates/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\templates.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_3bb8f6b1_3",
+    "content": "### Child Template (`index.html`)\n```html\n{% extends \"base.html\" %}\n\n{% block title %}Home - AI Assistant{% endblock %}\n\n{% block content %}\n    <h2>Dashboard</h2>\n    <p>Welcome to the AI Knowledge Assistant.</p>\n{% endblock %}\n```",
+    "metadata": {
+      "chunk_id": "django_3bb8f6b1_3",
+      "title": "Django Documentation — Templates and DTL System",
+      "section": "Template Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/templates/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\templates.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "django_b362957b_0",
+    "content": "# Django URL Routing\n\nA clean, elegant URL scheme is an important detail in a high-quality web application. Django lets you design URLs however you want, with no framework limitations.\n\n## URLconf Configuration\nTo route URLs to views, Django uses Python modules called `URLconfs` (URL configurations). The main configuration is specified in `ROOT_URLCONF` in `settings.py`.\n\n```python\nfrom django.contrib import admin\nfrom django.urls import path, include\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('api/', include('assistant.urls')),\n    path('', include('web.urls')),\n]\n```",
+    "metadata": {
+      "chunk_id": "django_b362957b_0",
+      "title": "Django Documentation — URL Routing and Dispatcher",
+      "section": "URL Dispatcher",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/urls/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\urls.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_e2e53c46_1",
+    "content": "## Path Converters\nDjango URL patterns can capture parameters from URLs using path converters:\n- `<int:pk>`: Matches zero or any positive integer.\n- `<str:name>`: Matches any non-empty string, excluding the path separator `'/'`.\n- `<slug:slug>`: Matches any slug string consisting of ASCII letters, numbers, hyphens, or underscores.\n- `<uuid:id>`: Matches a formatted UUID.\n\n```python\nfrom django.urls import path\nfrom . import views\n\napp_name = 'articles'",
+    "metadata": {
+      "chunk_id": "django_e2e53c46_1",
+      "title": "Django Documentation — URL Routing and Dispatcher",
+      "section": "URL Dispatcher",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/urls/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\urls.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_25905a96_2",
+    "content": "```python\nfrom django.urls import path\nfrom . import views\n\napp_name = 'articles'\n\nurlpatterns = [\n    path('', views.ArticleListView.as_view(), name='article_list'),\n    path('<int:pk>/', views.ArticleDetailView.as_view(), name='article_detail'),\n    path('category/<slug:slug>/', views.category_articles, name='category_articles'),\n]\n```",
+    "metadata": {
+      "chunk_id": "django_25905a96_2",
+      "title": "Django Documentation — URL Routing and Dispatcher",
+      "section": "URL Dispatcher",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/urls/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\urls.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_b206f274_3",
+    "content": "## Reverse URL Resolution\nDjango provides tools to generate URLs based on the view function name and parameters, eliminating hardcoded URLs in templates and views.\n- In Python code: `reverse('articles:article_detail', kwargs={'pk': 5})`\n- In HTML Templates: `{% url 'articles:article_detail' article.id %}`",
+    "metadata": {
+      "chunk_id": "django_b206f274_3",
+      "title": "Django Documentation — URL Routing and Dispatcher",
+      "section": "URL Dispatcher",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/urls/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\urls.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "django_e8ce874a_0",
+    "content": "# Django Views\n\nA view function, or view for short, is a Python function (or class) that takes a Web request and returns a Web response. This response can be the HTML contents of a Web page, or a redirect, or a 404 error, or an XML document, or an image, or JSON data.\n\n## Function-Based Views (FBVs)\nFunction-based views are straightforward Python functions that take an `HttpRequest` object as their first argument and return an `HttpResponse` object.\n\n```python\nfrom django.http import HttpResponse, JsonResponse\nfrom django.shortcuts import render, get_object_or_404\nfrom .models import Article",
+    "metadata": {
+      "chunk_id": "django_e8ce874a_0",
+      "title": "Django Documentation — Views and HTTP Request Handling",
+      "section": "View Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/views/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\views.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "django_b4e9eae4_1",
+    "content": "def article_list(request):\n    articles = Article.objects.filter(is_active=True)\n    return render(request, 'articles/list.html', {'articles': articles})\n\ndef article_detail(request, pk):\n    article = get_object_or_404(Article, pk=pk)\n    return JsonResponse({\n        'id': article.id,\n        'title': article.title,\n        'content': article.content\n    })\n```\n\n## Class-Based Views (CBVs)\nClass-based views provide an alternative way to implement views as Python objects instead of functions. They provide structured reusability through inheritance and mixins.",
+    "metadata": {
+      "chunk_id": "django_b4e9eae4_1",
+      "title": "Django Documentation — Views and HTTP Request Handling",
+      "section": "View Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/views/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\views.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "django_d3c7e5ea_2",
+    "content": "```python\nfrom django.views.generic import ListView, DetailView\nfrom .models import Article\n\nclass ArticleListView(ListView):\n    model = Article\n    template_name = 'articles/list.html'\n    context_object_name = 'articles'\n    queryset = Article.objects.filter(is_active=True)\n```",
+    "metadata": {
+      "chunk_id": "django_d3c7e5ea_2",
+      "title": "Django Documentation — Views and HTTP Request Handling",
+      "section": "View Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/views/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\views.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "django_4a2199a8_3",
+    "content": "## Shortcuts and Utility Functions\n- `render(request, template_name, context)`: Combines a template with a context dictionary and returns an `HttpResponse`.\n- `redirect(to)`: Returns an `HttpResponseRedirect` to the appropriate URL.\n- `get_object_or_404(klass, *args, **kwargs)`: Calls `get()` on a given model manager, but raises `Http404` instead of `DoesNotExist`.",
+    "metadata": {
+      "chunk_id": "django_4a2199a8_3",
+      "title": "Django Documentation — Views and HTTP Request Handling",
+      "section": "View Layer",
+      "source_url": "https://docs.djangoproject.com/en/5.0/topics/http/views/",
+      "category": "django",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\django\\views.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "python_fd89d628_0",
+    "content": "# Classes and Object-Oriented Programming in Python\n\nClasses provide a means of bundling data and functionality together. Creating a new class creates a new type of object, allowing new instances of that type to be made.\n\n## Class Definition Syntax\nClasses are defined using the `class` keyword.\n\n```python\nclass Dog:\n    # Class attribute (shared by all instances)\n    species = \"Canis lupus familiaris\"\n\n    def __init__(self, name, age):\n        # Instance attributes (unique to each instance)\n        self.name = name\n        self.age = age",
+    "metadata": {
+      "chunk_id": "python_fd89d628_0",
+      "title": "Python Documentation — Classes and Object-Oriented Programming",
+      "section": "Classes",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\classes_oop.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_cd53886d_1",
+    "content": "def bark(self):\n        \"\"\"Method representing dog barking action.\"\"\"\n        return f\"{self.name} says Woof!\"\n```\n\n## The `__init__` Method\nThe `__init__` method is the constructor method in Python. It is automatically called when a new instance of a class is instantiated. The first parameter of instance methods is always `self`, which refers to the specific instance being operated on.",
+    "metadata": {
+      "chunk_id": "python_cd53886d_1",
+      "title": "Python Documentation — Classes and Object-Oriented Programming",
+      "section": "Classes",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\classes_oop.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "python_83d35d9e_2",
+    "content": "## Encapsulation & Attribute Access\nAttributes in Python classes are public by default. Private attributes are conventionally prefixed with an underscore `_` (non-public) or double underscore `__` (triggers name mangling).\n\n```python\nclass BankAccount:\n    def __init__(self, balance):\n        self._balance = balance # Protected attribute\n\n    def deposit(self, amount):\n        if amount > 0:\n            self._balance += amount\n\n    def get_balance(self):\n        return self._balance\n```",
+    "metadata": {
+      "chunk_id": "python_83d35d9e_2",
+      "title": "Python Documentation — Classes and Object-Oriented Programming",
+      "section": "Classes",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\classes_oop.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "python_93ac788f_3",
+    "content": "def get_balance(self):\n        return self._balance\n```\n\n## Class Methods and Static Methods\n- `@classmethod`: Receives the class (`cls`) as the first argument instead of `self`. Useful for alternative constructors.\n- `@staticmethod`: Does not receive `self` or `cls`. Behaves like a plain function bound to a class namespace.",
+    "metadata": {
+      "chunk_id": "python_93ac788f_3",
+      "title": "Python Documentation — Classes and Object-Oriented Programming",
+      "section": "Classes",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\classes_oop.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "python_5e6d8fbc_0",
+    "content": "# Python Decorators\n\nA decorator is a function that takes another function as an argument, extends or alters its behavior without modifying the original function code, and returns a new wrapper function.\n\n## Basic Decorator Syntax\nDecorators are applied using the `@decorator_name` syntax above a function definition.\n\n```python\nimport functools\nimport time",
+    "metadata": {
+      "chunk_id": "python_5e6d8fbc_0",
+      "title": "Python Documentation — Decorators",
+      "section": "Advanced Functions & Metaprogramming",
+      "source_url": "https://docs.python.org/3/glossary.html#term-decorator",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\decorators.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_810e1f62_1",
+    "content": "```python\nimport functools\nimport time\n\ndef my_timer_decorator(func):\n    @functools.wraps(func)\n    def wrapper(*args, **kwargs):\n        start_time = time.time()\n        result = func(*args, **kwargs)\n        end_time = time.time()\n        print(f\"Function '{func.__name__}' executed in {end_time - start_time:.4f} seconds.\")\n        return result\n    return wrapper\n\n@my_timer_decorator\ndef compute_sum(n):\n    return sum(range(n))\n\n# Usage\ncompute_sum(1000000)\n```",
+    "metadata": {
+      "chunk_id": "python_810e1f62_1",
+      "title": "Python Documentation — Decorators",
+      "section": "Advanced Functions & Metaprogramming",
+      "source_url": "https://docs.python.org/3/glossary.html#term-decorator",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\decorators.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "python_3ba22093_2",
+    "content": "@my_timer_decorator\ndef compute_sum(n):\n    return sum(range(n))\n\n# Usage\ncompute_sum(1000000)\n```\n\n## How Decorators Work Under the Hood\nThe `@` syntax is syntactic sugar. Writing `@my_decorator` above `def my_func(): ...` is identical to:\n`my_func = my_decorator(my_func)`\n\n## Decorators with Arguments\nTo pass arguments to a decorator itself, you must write a decorator factory (a function that returns a decorator).",
+    "metadata": {
+      "chunk_id": "python_3ba22093_2",
+      "title": "Python Documentation — Decorators",
+      "section": "Advanced Functions & Metaprogramming",
+      "source_url": "https://docs.python.org/3/glossary.html#term-decorator",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\decorators.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "python_8b782d31_3",
+    "content": "```python\ndef repeat(num_times):\n    def decorator_repeat(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for _ in range(num_times):\n                value = func(*args, **kwargs)\n            return value\n        return wrapper\n    return decorator_repeat\n\n@repeat(num_times=3)\ndef greet(name):\n    print(f\"Hello {name}\")\n```\n\n## Using `functools.wraps`\nAlways use `@functools.wraps(func)` on the inner wrapper function. This preserves the original function's metadata, such as `__name__` and `__doc__`.",
+    "metadata": {
+      "chunk_id": "python_8b782d31_3",
+      "title": "Python Documentation — Decorators",
+      "section": "Advanced Functions & Metaprogramming",
+      "source_url": "https://docs.python.org/3/glossary.html#term-decorator",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\decorators.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "python_972bc640_0",
+    "content": "# Exception Handling in Python\n\nExceptions are errors detected during execution. Python provides structured exception handling using `try`, `except`, `else`, and `finally` blocks.\n\n## Basic Try-Except Block\n```python\ntry:\n    number = int(input(\"Enter a number: \"))\n    result = 100 / number\nexcept ValueError:\n    print(\"Invalid input! Please enter an integer.\")\nexcept ZeroDivisionError:\n    print(\"Error: Cannot divide by zero!\")\n```",
+    "metadata": {
+      "chunk_id": "python_972bc640_0",
+      "title": "Python Documentation — Exception Handling",
+      "section": "Errors and Exceptions",
+      "source_url": "https://docs.python.org/3/tutorial/errors.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\exception_handling.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_fa931233_1",
+    "content": "## The Complete Try Statement Structure\n- `try`: Contains code that might raise an exception.\n- `except`: Catches and handles specific exception types.\n- `else`: Executes if NO exceptions were raised in the try block.\n- `finally`: ALWAYS executes regardless of whether an exception occurred. Ideal for cleanup tasks like closing files or database connections.",
+    "metadata": {
+      "chunk_id": "python_fa931233_1",
+      "title": "Python Documentation — Exception Handling",
+      "section": "Errors and Exceptions",
+      "source_url": "https://docs.python.org/3/tutorial/errors.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\exception_handling.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "python_a9b18044_2",
+    "content": "```python\nfile = None\ntry:\n    file = open(\"data.txt\", \"r\")\n    content = file.read()\nexcept FileNotFoundError:\n    print(\"File was not found.\")\nelse:\n    print(f\"File successfully read: {len(content)} bytes.\")\nfinally:\n    if file:\n        file.close()\n        print(\"File closed.\")\n```\n\n## Raising Exceptions\nUse the `raise` keyword to trigger custom exceptions.\n\n```python\ndef set_age(age):\n    if age < 0:\n        raise ValueError(\"Age cannot be negative.\")\n    return age\n```\n\n## Custom Exception Classes\nCustom exceptions inherit from Python's built-in `Exception` class.",
+    "metadata": {
+      "chunk_id": "python_a9b18044_2",
+      "title": "Python Documentation — Exception Handling",
+      "section": "Errors and Exceptions",
+      "source_url": "https://docs.python.org/3/tutorial/errors.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\exception_handling.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "python_904fa9cc_3",
+    "content": "## Custom Exception Classes\nCustom exceptions inherit from Python's built-in `Exception` class.\n\n```python\nclass InsufficientFundsError(Exception):\n    \"\"\"Raised when an account balance is lower than withdrawal amount.\"\"\"\n    def __init__(self, balance, amount):\n        super().__init__(f\"Attempted to withdraw ${amount} with balance ${balance}.\")\n        self.balance = balance\n        self.amount = amount\n```",
+    "metadata": {
+      "chunk_id": "python_904fa9cc_3",
+      "title": "Python Documentation — Exception Handling",
+      "section": "Errors and Exceptions",
+      "source_url": "https://docs.python.org/3/tutorial/errors.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\exception_handling.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "python_3a611baf_0",
+    "content": "# Defining Functions in Python\n\nA function in Python is a reusable block of code that performs a specific task. Functions allow developers to write modular, readable, and DRY (Don't Repeat Yourself) code.\n\n## Defining a Function\nIn Python, functions are defined using the `def` keyword followed by the function name, parentheses `()`, and a colon `:`. The code block within every function is indented.\n\n```python\ndef greet(name):\n    \"\"\"Return a greeting message for the given name.\"\"\"\n    return f\"Hello, {name}!\"\n```",
+    "metadata": {
+      "chunk_id": "python_3a611baf_0",
+      "title": "Python Documentation — Defining Functions",
+      "section": "Control Flow Tools",
+      "source_url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\functions.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_c173ab4e_1",
+    "content": "```python\ndef greet(name):\n    \"\"\"Return a greeting message for the given name.\"\"\"\n    return f\"Hello, {name}!\"\n```\n\n## Function Arguments and Parameters\nPython functions support positional arguments, keyword arguments, default parameter values, and arbitrary argument lists.",
+    "metadata": {
+      "chunk_id": "python_c173ab4e_1",
+      "title": "Python Documentation — Defining Functions",
+      "section": "Control Flow Tools",
+      "source_url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\functions.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "python_a0c20632_2",
+    "content": "- **Positional Arguments**: Passed to function parameters in order.\n- **Keyword Arguments**: Passed using `kwarg=value` format.\n- **Default Arguments**: Parameter default values assigned in the definition.\n- **Arbitrary Arguments (`*args`)**: Accepts a tuple of positional arguments.\n- **Arbitrary Keyword Arguments (`**kwargs`)**: Accepts a dictionary of keyword arguments.",
+    "metadata": {
+      "chunk_id": "python_a0c20632_2",
+      "title": "Python Documentation — Defining Functions",
+      "section": "Control Flow Tools",
+      "source_url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\functions.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "python_cc351158_3",
+    "content": "```python\ndef calculate_total(price, tax_rate=0.05, *discounts, **extra_fees):\n    subtotal = price * (1 + tax_rate)\n    for d in discounts:\n        subtotal -= d\n    for fee_name, fee_val in extra_fees.items():\n        subtotal += fee_val\n    return subtotal\n```\n\n## Lambda Functions (Anonymous Functions)\nSmall anonymous functions can be created with the `lambda` keyword. Lambda functions can take any number of arguments, but can only have a single expression.\n\n```python\ndouble = lambda x: x * 2\nprint(double(5)) # Outputs: 10\n```",
+    "metadata": {
+      "chunk_id": "python_cc351158_3",
+      "title": "Python Documentation — Defining Functions",
+      "section": "Control Flow Tools",
+      "source_url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\functions.md",
+      "chunk_index": 3
+    }
+  },
+  {
+    "chunk_id": "python_97746284_4",
+    "content": "```python\ndouble = lambda x: x * 2\nprint(double(5)) # Outputs: 10\n```\n\n## Docstrings and Return Values\nFunctions return `None` by default unless an explicit `return` statement is executed. Docstrings `\"\"\"Docstring text\"\"\"` provide immediate documentation accessible via `help(func)` or `func.__doc__`.",
+    "metadata": {
+      "chunk_id": "python_97746284_4",
+      "title": "Python Documentation — Defining Functions",
+      "section": "Control Flow Tools",
+      "source_url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\functions.md",
+      "chunk_index": 4
+    }
+  },
+  {
+    "chunk_id": "python_c2ccdfbc_0",
+    "content": "# Inheritance in Python\n\nInheritance allows a class (child/derived class) to inherit attributes and methods from another class (parent/base class).\n\n## Basic Single Inheritance\n```python\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return \"Generic animal sound\"\n\nclass Cat(Animal):\n    def speak(self):\n        return f\"{self.name} says Meow!\"\n\ncat = Cat(\"Whiskers\")\nprint(cat.speak()) # Output: Whiskers says Meow!\n```\n\n## Using `super()`\nThe `super()` function allows access to parent class methods, especially constructor initializations.",
+    "metadata": {
+      "chunk_id": "python_c2ccdfbc_0",
+      "title": "Python Documentation — Inheritance and Polymorphism",
+      "section": "Classes & Object Oriented Programming",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html#inheritance",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\inheritance.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_b9704905_1",
+    "content": "## Using `super()`\nThe `super()` function allows access to parent class methods, especially constructor initializations.\n\n```python\nclass Employee:\n    def __init__(self, name, salary):\n        self.name = name\n        self.salary = salary\n\nclass Developer(Employee):\n    def __init__(self, name, salary, programming_language):\n        super().__init__(name, salary)\n        self.programming_language = programming_language\n```",
+    "metadata": {
+      "chunk_id": "python_b9704905_1",
+      "title": "Python Documentation — Inheritance and Polymorphism",
+      "section": "Classes & Object Oriented Programming",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html#inheritance",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\inheritance.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "python_f748ec7d_2",
+    "content": "## Multiple Inheritance & Method Resolution Order (MRO)\nPython supports multiple inheritance, where a child class inherits from multiple base classes. Method lookup order follows C3 Linearization (Method Resolution Order - MRO), which can be checked via `ClassName.__mro__`.\n\n```python\nclass A:\n    def process(self):\n        print(\"A process\")\n\nclass B(A):\n    def process(self):\n        print(\"B process\")\n\nclass C(A):\n    def process(self):\n        print(\"C process\")\n\nclass D(B, C):\n    pass\n\nd = D()\nd.process() # Calls B process based on MRO (D -> B -> C -> A)\n```",
+    "metadata": {
+      "chunk_id": "python_f748ec7d_2",
+      "title": "Python Documentation — Inheritance and Polymorphism",
+      "section": "Classes & Object Oriented Programming",
+      "source_url": "https://docs.python.org/3/tutorial/classes.html#inheritance",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\inheritance.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "python_c881a934_0",
+    "content": "# List Comprehensions in Python\n\nList comprehensions provide a concise way to create lists. Common applications are to make new lists where each element is the result of operations applied to each member of another sequence, or to create a subsequence of elements that satisfy a given condition.\n\n## Basic Syntax\n`[expression for item in iterable if condition]`\n\n## Examples\n\n### 1. Basic Transformation\n```python\n# Traditional loop\nsquares = []\nfor x in range(10):\n    squares.append(x**2)\n\n# List comprehension equivalent\nsquares = [x**2 for x in range(10)]\n```",
+    "metadata": {
+      "chunk_id": "python_c881a934_0",
+      "title": "Python Documentation — List Comprehensions",
+      "section": "Data Structures",
+      "source_url": "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\list_comprehensions.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_b1f7716d_1",
+    "content": "# List comprehension equivalent\nsquares = [x**2 for x in range(10)]\n```\n\n### 2. Filtering with Condition\n```python\n# Extract even numbers\nevens = [x for x in range(20) if x % 2 == 0]\n```\n\n### 3. Nested Comprehensions\n```python\nmatrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\nflattened = [val for row in matrix for val in row]\n# Result: [1, 2, 3, 4, 5, 6, 7, 8, 9]\n```\n\n## Dictionary and Set Comprehensions\nSimilar syntax can be used to generate dictionaries and sets:\n\n```python\n# Dict comprehension\nsquare_map = {x: x**2 for x in range(5)} # {0:0, 1:1, 2:4, 3:9, 4:16}",
+    "metadata": {
+      "chunk_id": "python_b1f7716d_1",
+      "title": "Python Documentation — List Comprehensions",
+      "section": "Data Structures",
+      "source_url": "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\list_comprehensions.md",
+      "chunk_index": 1
+    }
+  },
+  {
+    "chunk_id": "python_d64ece42_2",
+    "content": "```python\n# Dict comprehension\nsquare_map = {x: x**2 for x in range(5)} # {0:0, 1:1, 2:4, 3:9, 4:16}\n\n# Set comprehension (removes duplicates)\nunique_lengths = {len(word) for word in [\"apple\", \"banana\", \"apple\", \"cherry\"]}\n```",
+    "metadata": {
+      "chunk_id": "python_d64ece42_2",
+      "title": "Python Documentation — List Comprehensions",
+      "section": "Data Structures",
+      "source_url": "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\list_comprehensions.md",
+      "chunk_index": 2
+    }
+  },
+  {
+    "chunk_id": "python_532541c3_0",
+    "content": "# Python Modules and Packages\n\nA module is a file containing Python definitions and statements. The file name is the module name with the suffix `.py` appended.\n\n## Importing Modules\nPython supports several import styles:\n\n```python\nimport math\nprint(math.sqrt(16)) # 4.0\n\nfrom math import pi, sin\nprint(sin(pi / 2)) # 1.0\n\nimport numpy as np\n```\n\n## Packages\nPackages are a way of structuring Python's module namespace by using \"dotted module names\". For example, `A.B` designates a submodule named `B` in a package named `A`.",
+    "metadata": {
+      "chunk_id": "python_532541c3_0",
+      "title": "Python Documentation — Modules and Packages",
+      "section": "Modules",
+      "source_url": "https://docs.python.org/3/tutorial/modules.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\modules_packages.md",
+      "chunk_index": 0
+    }
+  },
+  {
+    "chunk_id": "python_76791f81_1",
+    "content": "A folder is recognized as a Python package if it contains an `__init__.py` file (though namespace packages in Python 3.3+ allow optional `__init__.py`).\n\n```\nmypackage/\n│── __init__.py\n│── utils.py\n└── models/\n    │── __init__.py\n    └── user.py\n```\n\n## The `if __name__ == '__main__':` Pattern\nWhen a Python script is run directly, `__name__` is set to `'__main__'`. When imported as a module, `__name__` is set to the filename.\n\n```python\ndef main():\n    print(\"Executing main routine\")\n\nif __name__ == \"__main__\":\n    main()\n```",
+    "metadata": {
+      "chunk_id": "python_76791f81_1",
+      "title": "Python Documentation — Modules and Packages",
+      "section": "Modules",
+      "source_url": "https://docs.python.org/3/tutorial/modules.html",
+      "category": "python",
+      "file_path": "C:\\Users\\Sravanthi\\Desktop\\AI Knowledge Base Article generator\\documents\\python\\modules_packages.md",
+      "chunk_index": 1
+    }
+  }
+]
